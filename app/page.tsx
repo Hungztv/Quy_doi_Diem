@@ -638,12 +638,6 @@ export default function HomePage() {
       {showAdModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm transition-all duration-300">
           <div className="fade-in-up flex w-full max-w-xl max-h-full flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
-            {/* Modal Header */}
-            <div className="shrink-0 bg-gradient-to-br from-teal-500 to-cyan-600 px-6 py-5 text-center sm:py-6">
-              <h2 className="text-xl font-extrabold text-white sm:text-2xl">🎁 Nhận Ngay Ưu Đãi Đặc Quyền</h2>
-              <p className="mt-2 text-sm font-medium text-teal-50">Dành riêng cho các bạn 2K8 sau kỳ thi THPT</p>
-            </div>
-
             {/* Modal Body */}
             <div className="overflow-y-auto p-5 sm:p-8">
               {/* Banner Image */}
