@@ -143,6 +143,8 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showTables, setShowTables] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [surveyOption, setSurveyOption] = useState("");
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -215,14 +217,37 @@ export default function HomePage() {
     const finalScore = (hocBaScore * 0.5) + (convertedExamScore * 0.5) + numBonus + numPriority;
     const finalScoreRounded = Number(finalScore.toFixed(2));
 
+    // Show the Ad modal instead of submitting directly
+    setShowAdModal(true);
+  }
+
+  async function submitWithAd() {
+    if (!surveyOption) {
+      return;
+    }
+
+    setShowAdModal(false);
     setIsLoading(true);
+
+    const hbM1 = Number(hocBaM1);
+    const hbM2 = Number(hocBaM2);
+    const hbM3 = Number(hocBaM3);
+    const numExamScore = Number(examScore.trim());
+    const convertedExamScore = convertScore(examType, numExamScore)!;
+    const numBonus = bonusPoints.trim() ? Number(bonusPoints.trim()) : 0;
+    const numPriority = priorityPoints.trim() ? Number(priorityPoints.trim()) : 0;
+    const facebookValidation = normalizeFacebookLink(facebookLink);
+
+    const hocBaScore = ((hbM1 * 2) + hbM2 + hbM3) * 3 / 4;
+    const finalScore = (hocBaScore * 0.5) + (convertedExamScore * 0.5) + numBonus + numPriority;
+    const finalScoreRounded = Number(finalScore.toFixed(2));
 
     try {
       const response = await fetch("/api/save-score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: trimmedName,
+          fullName: fullName.trim(),
           hocBaM1: hbM1,
           hocBaM2: hbM2,
           hocBaM3: hbM3,
@@ -230,7 +255,8 @@ export default function HomePage() {
           examScore: numExamScore,
           bonusPoints: numBonus,
           priorityPoints: numPriority,
-          hasIntlCert: hasIntlCert,
+          hasIntlCert,
+          surveyOption,
           finalScore: finalScoreRounded,
           facebookLink: facebookValidation.value,
         }),
@@ -608,6 +634,99 @@ export default function HomePage() {
           <span className="absolute inset-0 rounded-full bg-blue-400 opacity-0 animate-ping" />
         </a>
       </div>
+      {/* ── Ad Modal ────────────────────────────────────── */}
+      {showAdModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm transition-all duration-300">
+          <div className="fade-in-up flex w-full max-w-xl max-h-full flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+            {/* Modal Header */}
+            <div className="shrink-0 bg-gradient-to-br from-teal-500 to-cyan-600 px-6 py-5 text-center sm:py-6">
+              <h2 className="text-xl font-extrabold text-white sm:text-2xl">🎁 Nhận Ngay Ưu Đãi Đặc Quyền</h2>
+              <p className="mt-2 text-sm font-medium text-teal-50">Dành riêng cho các bạn 2K8 sau kỳ thi THPT</p>
+            </div>
+
+            {/* Modal Body */}
+            <div className="overflow-y-auto p-5 sm:p-8">
+              {/* Banner Image */}
+              <div className="mb-6 overflow-hidden rounded-xl ring-1 ring-gray-100 shadow-sm">
+                <img src="/ccta-banner.jpg" alt="Lợi ích học TOEIC" className="w-full h-auto object-cover" />
+              </div>
+
+              <div className="mb-6 rounded-2xl bg-teal-50/50 p-5 ring-1 ring-teal-100">
+                <p className="mb-3 text-sm font-semibold text-gray-800">Chị đang hỗ trợ chứng chỉ tiếng Anh (CCTA) cho các bạn với mục tiêu:</p>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 text-teal-500">✅</span> Vượt kì thi Tiếng Anh đầu vào tháng 9-10
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 text-teal-500">✅</span> Miễn học phần TA, quy đổi full 10
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 text-teal-500">✅</span> Không trượt môn, không học lạt
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5 text-teal-500">✅</span> Học TA ĐH nhẹ nhàng hơn, GPA cao săn học bổng
+                  </li>
+                </ul>
+                <p className="mt-3 text-sm italic text-gray-600">
+                  Chị sẽ mở các buổi Zoom 1:1 hoặc nhóm nhỏ để chia sẻ kinh nghiệm học & thi, định hướng môi trường phù hợp + hỗ trợ voucher/slots VIP tại Cham TOEIC.
+                </p>
+              </div>
+
+              {/* Survey Options */}
+              <div className="mb-8 space-y-3">
+                <label className="block text-sm font-bold text-gray-800">Khảo sát nhanh (Bắt buộc chọn để xem điểm):</label>
+                
+                <label className={`flex cursor-pointer items-start gap-3 rounded-xl p-3 ring-1 transition-all duration-200 ${surveyOption === "Tư vấn CCTA - Nhận voucher/slot VIP" ? "bg-teal-50 ring-teal-500" : "bg-white ring-gray-200 hover:bg-gray-50"}`}>
+                  <div className="flex h-5 items-center">
+                    <input type="radio" name="survey" className="h-4 w-4 text-teal-600 focus:ring-teal-500" checked={surveyOption === "Tư vấn CCTA - Nhận voucher/slot VIP"} onChange={() => setSurveyOption("Tư vấn CCTA - Nhận voucher/slot VIP")} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Em muốn chị tư vấn về CCTA ở CHAM TOEIC - Em muốn nhận voucher, slot lớp VIP để học</span>
+                </label>
+
+                <label className={`flex cursor-pointer items-start gap-3 rounded-xl p-3 ring-1 transition-all duration-200 ${surveyOption === "Em mất gốc" ? "bg-teal-50 ring-teal-500" : "bg-white ring-gray-200 hover:bg-gray-50"}`}>
+                  <div className="flex h-5 items-center">
+                    <input type="radio" name="survey" className="h-4 w-4 text-teal-600 focus:ring-teal-500" checked={surveyOption === "Em mất gốc"} onChange={() => setSurveyOption("Em mất gốc")} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Em mất gốc huhu</span>
+                </label>
+
+                <label className={`flex cursor-pointer items-start gap-3 rounded-xl p-3 ring-1 transition-all duration-200 ${surveyOption === "Có IELTS nhưng muốn tìm hiểu TOEIC" ? "bg-teal-50 ring-teal-500" : "bg-white ring-gray-200 hover:bg-gray-50"}`}>
+                  <div className="flex h-5 items-center">
+                    <input type="radio" name="survey" className="h-4 w-4 text-teal-600 focus:ring-teal-500" checked={surveyOption === "Có IELTS nhưng muốn tìm hiểu TOEIC"} onChange={() => setSurveyOption("Có IELTS nhưng muốn tìm hiểu TOEIC")} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Em có IELTS rùi ạ nhưng muốn tìm hiểu TOEIC sau thi</span>
+                </label>
+
+                <label className={`flex cursor-pointer items-start gap-3 rounded-xl p-3 ring-1 transition-all duration-200 ${surveyOption === "Em đang học/Đã có chứng chỉ" ? "bg-teal-50 ring-teal-500" : "bg-white ring-gray-200 hover:bg-gray-50"}`}>
+                  <div className="flex h-5 items-center">
+                    <input type="radio" name="survey" className="h-4 w-4 text-teal-600 focus:ring-teal-500" checked={surveyOption === "Em đang học/Đã có chứng chỉ"} onChange={() => setSurveyOption("Em đang học/Đã có chứng chỉ")} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">Em đang học (đã có) chứng chỉ r ạ</span>
+                </label>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowAdModal(false)}
+                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-500 transition-colors hover:bg-gray-100"
+                >
+                  Quay lại
+                </button>
+                <button
+                  type="button"
+                  disabled={!surveyOption}
+                  onClick={submitWithAd}
+                  className={`rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all ${surveyOption ? "bg-gradient-to-r from-teal-500 to-cyan-600 hover:shadow-teal-300/50" : "bg-gray-300 cursor-not-allowed"}`}
+                >
+                  Xác nhận & Xem điểm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

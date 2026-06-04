@@ -12,6 +12,7 @@ type SaveScorePayload = {
     bonusPoints: number;
     priorityPoints: number;
     hasIntlCert: boolean;
+    surveyOption?: string;
     finalScore: number;
     facebookLink?: string;
 };
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest) {
             bonusPoints: body.bonusPoints,
             priorityPoints: body.priorityPoints,
             hasIntlCert: body.hasIntlCert ? "Có" : "Không",
+            surveyOption: body.surveyOption?.trim() || "",
             finalScore: body.finalScore,
             facebookLink: body.facebookLink?.trim() || "",
             createdAt: new Date().toISOString(),
