@@ -137,7 +137,7 @@ export default function HomePage() {
   const [examScore, setExamScore] = useState("");
   const [bonusPoints, setBonusPoints] = useState("");
   const [priorityPoints, setPriorityPoints] = useState("");
-  const [intlCertPoints, setIntlCertPoints] = useState("");
+  const [hasIntlCert, setHasIntlCert] = useState(false);
   const [facebookLink, setFacebookLink] = useState("");
   const [message, setMessage] = useState<Message | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -198,14 +198,12 @@ export default function HomePage() {
 
     const strBonus = bonusPoints.trim();
     const strPriority = priorityPoints.trim();
-    const strIntlCert = intlCertPoints.trim();
-    if ((strBonus && !isNumericInput(strBonus)) || (strPriority && !isNumericInput(strPriority)) || (strIntlCert && !isNumericInput(strIntlCert))) {
-      setMessage({ type: "error", text: "Điểm cộng, điểm ưu tiên, hoặc điểm chứng chỉ không hợp lệ." });
+    if ((strBonus && !isNumericInput(strBonus)) || (strPriority && !isNumericInput(strPriority))) {
+      setMessage({ type: "error", text: "Điểm cộng hoặc điểm ưu tiên không hợp lệ." });
       return;
     }
     const numBonus = strBonus ? Number(strBonus) : 0;
     const numPriority = strPriority ? Number(strPriority) : 0;
-    const numIntlCert = strIntlCert ? Number(strIntlCert) : 0;
 
     const facebookValidation = normalizeFacebookLink(facebookLink);
     if (facebookValidation.error) {
@@ -214,7 +212,7 @@ export default function HomePage() {
     }
 
     const hocBaScore = ((hbM1 * 2) + hbM2 + hbM3) * 3 / 4;
-    const finalScore = (hocBaScore * 0.5) + (convertedExamScore * 0.5) + numBonus + numPriority + numIntlCert;
+    const finalScore = (hocBaScore * 0.5) + (convertedExamScore * 0.5) + numBonus + numPriority;
     const finalScoreRounded = Number(finalScore.toFixed(2));
 
     setIsLoading(true);
@@ -232,7 +230,7 @@ export default function HomePage() {
           examScore: numExamScore,
           bonusPoints: numBonus,
           priorityPoints: numPriority,
-          intlCertPoints: numIntlCert,
+          hasIntlCert: hasIntlCert,
           finalScore: finalScoreRounded,
           facebookLink: facebookValidation.value,
         }),
@@ -492,7 +490,10 @@ export default function HomePage() {
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-gray-700">Chứng chỉ quốc tế</label>
-                <input type="number" step="0.01" min="0" value={intlCertPoints} onChange={(e) => { setIntlCertPoints(e.target.value); setMessage(null); }} placeholder="VD: 2.0" className="input-glow w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-gray-900 outline-none placeholder:text-gray-400" />
+                <div className="flex rounded-xl bg-gray-200/50 p-1 ring-1 ring-gray-200">
+                  <button type="button" onClick={() => { setHasIntlCert(true); setMessage(null); }} className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all duration-200 ${hasIntlCert ? "bg-white text-teal-700 shadow-sm ring-1 ring-gray-200" : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"}`}>Có</button>
+                  <button type="button" onClick={() => { setHasIntlCert(false); setMessage(null); }} className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all duration-200 ${!hasIntlCert ? "bg-white text-teal-700 shadow-sm ring-1 ring-gray-200" : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"}`}>Không</button>
+                </div>
               </div>
             </div>
             <p className="mt-3 text-xs text-gray-400">Có thể để trống nếu bạn không có điểm cộng hay chứng chỉ.</p>

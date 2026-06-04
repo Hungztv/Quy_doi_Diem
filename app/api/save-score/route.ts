@@ -11,7 +11,7 @@ type SaveScorePayload = {
     examScore: number;
     bonusPoints: number;
     priorityPoints: number;
-    intlCertPoints: number;
+    hasIntlCert: boolean;
     finalScore: number;
     facebookLink?: string;
 };
@@ -74,9 +74,16 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (!isFiniteNumber(body.bonusPoints) || !isFiniteNumber(body.priorityPoints) || !isFiniteNumber(body.intlCertPoints)) {
+        if (!isFiniteNumber(body.bonusPoints) || !isFiniteNumber(body.priorityPoints)) {
             return NextResponse.json(
-                { status: "error", message: "Điểm cộng, ưu tiên hoặc chứng chỉ không hợp lệ." },
+                { status: "error", message: "Điểm cộng hoặc ưu tiên không hợp lệ." },
+                { status: 400 }
+            );
+        }
+
+        if (typeof body.hasIntlCert !== "boolean") {
+            return NextResponse.json(
+                { status: "error", message: "Trạng thái chứng chỉ quốc tế không hợp lệ." },
                 { status: 400 }
             );
         }
@@ -100,7 +107,7 @@ export async function POST(request: NextRequest) {
             examScore: body.examScore,
             bonusPoints: body.bonusPoints,
             priorityPoints: body.priorityPoints,
-            intlCertPoints: body.intlCertPoints,
+            hasIntlCert: body.hasIntlCert ? "Có" : "Không",
             finalScore: body.finalScore,
             facebookLink: body.facebookLink?.trim() || "",
             createdAt: new Date().toISOString(),
