@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 
 /* ────────────────────── Types ────────────────────── */
 
@@ -141,6 +141,13 @@ export default function HomePage() {
   const [message, setMessage] = useState<Message | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showTables, setShowTables] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => setCooldown((c) => c - 1), 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const selectedExam = EXAM_CONFIGS[examType];
 
@@ -250,6 +257,7 @@ export default function HomePage() {
       });
     } finally {
       setIsLoading(false);
+      setCooldown(30);
     }
   }
 
@@ -492,12 +500,12 @@ export default function HomePage() {
           {/* Submit button */}
           <button
             type="submit"
-            disabled={isLoading}
-            className={`btn-gradient w-full rounded-xl px-5 py-3.5 font-semibold text-white shadow-lg shadow-teal-200 transition-transform active:scale-[0.98] ${isLoading ? "shimmer" : ""
+            disabled={isLoading || cooldown > 0}
+            className={`btn-gradient w-full rounded-xl px-5 py-3.5 font-semibold text-white shadow-lg shadow-teal-200 transition-transform active:scale-[0.98] ${(isLoading || cooldown > 0) ? "opacity-80" : ""} ${isLoading ? "shimmer" : ""
               }`}
           >
             <span>
-              {isLoading ? "Đang xử lý..." : "Xem Kết Quả & Lưu Thông Tin"}
+              {isLoading ? "Đang xử lý..." : cooldown > 0 ? `Vui lòng đợi ${cooldown}s để tiếp tục` : "Xem Kết Quả & Lưu Thông Tin"}
             </span>
           </button>
         </form>
