@@ -60,7 +60,7 @@ const EXAM_CONFIGS: Record<ExamType, ExamConfig> = {
 /* ────────────────────── Helpers ───────────────────── */
 
 function isNumericInput(value: string) {
-  return /^-?\d+(\.\d+)?$/.test(value.trim());
+  return /^-?\d+(\.\d{1,2})?$/.test(value.trim());
 }
 
 function convertScore(examType: ExamType, score: number) {
@@ -201,11 +201,25 @@ export default function HomePage() {
     const strBonus = bonusPoints.trim();
     const strPriority = priorityPoints.trim();
     if ((strBonus && !isNumericInput(strBonus)) || (strPriority && !isNumericInput(strPriority))) {
-      setMessage({ type: "error", text: "Điểm cộng hoặc điểm ưu tiên không hợp lệ." });
+      setMessage({ type: "error", text: "Điểm cộng hoặc điểm ưu tiên không hợp lệ (tối đa 2 chữ số thập phân)." });
       return;
     }
     const numBonus = strBonus ? Number(strBonus) : 0;
     const numPriority = strPriority ? Number(strPriority) : 0;
+
+    if (numBonus > 3.0 || numBonus < 0) {
+      setMessage({ type: "error", text: "Điểm cộng khuyến khích tối đa là 3.0" });
+      return;
+    }
+    if (numPriority > 2.75 || numPriority < 0) {
+      setMessage({ type: "error", text: "Điểm ưu tiên khu vực/đối tượng tối đa là 2.75" });
+      return;
+    }
+
+    if (!facebookLink.trim()) {
+      setMessage({ type: "error", text: "Vui lòng nhập Link Facebook (Bắt buộc) để chuyên viên hỗ trợ." });
+      return;
+    }
 
     const facebookValidation = normalizeFacebookLink(facebookLink);
     if (facebookValidation.error) {
@@ -236,6 +250,8 @@ export default function HomePage() {
     const convertedExamScore = convertScore(examType, numExamScore)!;
     const numBonus = bonusPoints.trim() ? Number(bonusPoints.trim()) : 0;
     const numPriority = priorityPoints.trim() ? Number(priorityPoints.trim()) : 0;
+
+    // Use raw facebookLink to normalize again or just let backend take it
     const facebookValidation = normalizeFacebookLink(facebookLink);
 
     const hocBaScore = ((hbM1 * 2) + hbM2 + hbM3) * 3 / 4;
@@ -536,7 +552,7 @@ export default function HomePage() {
           <button
             type="submit"
             disabled={isLoading || cooldown > 0}
-            className={`btn-gradient w-full rounded-xl px-5 py-3.5 font-semibold text-white shadow-lg shadow-teal-200 transition-transform active:scale-[0.98] ${(isLoading || cooldown > 0) ? "opacity-80" : ""} ${isLoading ? "shimmer" : ""
+            className={`btn-gradient w-full cursor-pointer disabled:cursor-not-allowed rounded-xl px-5 py-3.5 font-semibold text-white shadow-lg shadow-teal-200 transition-transform active:scale-[0.98] ${(isLoading || cooldown > 0) ? "opacity-80" : ""} ${isLoading ? "shimmer" : ""
               }`}
           >
             <span>
@@ -669,7 +685,7 @@ export default function HomePage() {
               {/* Survey Options */}
               <div className="mb-8 space-y-3">
                 <label className="block text-sm font-bold text-gray-800">Khảo sát nhanh (Bắt buộc chọn để xem điểm):</label>
-                
+
                 <label className={`flex cursor-pointer items-start gap-3 rounded-xl p-3 ring-1 transition-all duration-200 ${surveyOption === "Tư vấn CCTA - Nhận voucher/slot VIP" ? "bg-teal-50 ring-teal-500" : "bg-white ring-gray-200 hover:bg-gray-50"}`}>
                   <div className="flex h-5 items-center">
                     <input type="radio" name="survey" className="h-4 w-4 text-teal-600 focus:ring-teal-500" checked={surveyOption === "Tư vấn CCTA - Nhận voucher/slot VIP"} onChange={() => setSurveyOption("Tư vấn CCTA - Nhận voucher/slot VIP")} />
@@ -695,7 +711,7 @@ export default function HomePage() {
                   <div className="flex h-5 items-center">
                     <input type="radio" name="survey" className="h-4 w-4 text-teal-600 focus:ring-teal-500" checked={surveyOption === "Em đang học/Đã có chứng chỉ"} onChange={() => setSurveyOption("Em đang học/Đã có chứng chỉ")} />
                   </div>
-                  <span className="text-sm font-medium text-gray-700">Em đang học (đã có) chứng chỉ r ạ</span>
+                  <span className="text-sm font-medium text-gray-700">Em đang học (đã có) chứng chỉ rồi ạ</span>
                 </label>
               </div>
 
@@ -704,7 +720,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setShowAdModal(false)}
-                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-500 transition-colors hover:bg-gray-100"
+                  className="cursor-pointer rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-500 transition-colors hover:bg-gray-100"
                 >
                   Quay lại
                 </button>
@@ -712,7 +728,7 @@ export default function HomePage() {
                   type="button"
                   disabled={!surveyOption}
                   onClick={submitWithAd}
-                  className={`rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all ${surveyOption ? "bg-gradient-to-r from-teal-500 to-cyan-600 hover:shadow-teal-300/50" : "bg-gray-300 cursor-not-allowed"}`}
+                  className={`cursor-pointer disabled:cursor-not-allowed rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all ${surveyOption ? "bg-gradient-to-r from-teal-500 to-cyan-600 hover:shadow-teal-300/50" : "bg-gray-300"}`}
                 >
                   Xác nhận & Xem điểm
                 </button>

@@ -142,6 +142,30 @@ export async function POST(request: NextRequest) {
             googleData = null;
         }
 
+        // -- BẮT ĐẦU: GỬI THÔNG BÁO QUA TELEGRAM --
+        const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+        const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+        if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+            const message = `🚨 <b>CÓ LEAD MỚI CẦN TƯ VẤN GẤP!</b>\n\n` +
+                            `👤 Học sinh: <b>${payload.fullName}</b>\n` +
+                            `🎯 Điểm quy đổi: <b>${payload.finalScore}/30</b>\n` +
+                            `📝 Khảo sát: <i>${payload.surveyOption || 'Không có'}</i>\n` +
+                            `🔗 Link Facebook: ${payload.facebookLink || 'Không có'}`;
+            
+            // Không cần await để tránh làm chậm thời gian phản hồi cho học sinh
+            fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: message,
+                    parse_mode: 'HTML'
+                })
+            }).catch(err => console.error("Telegram notification error:", err));
+        }
+        // -- KẾT THÚC: GỬI THÔNG BÁO QUA TELEGRAM --
+
         return NextResponse.json(
             {
                 status: "success",
