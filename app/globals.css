@@ -12,15 +12,164 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ── Clean background ─────────────────────────────────────── */
+.bg-clean {
+  background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 30%, #fdf2f8 60%, #f0fdf4 100%);
+  position: relative;
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+/* ── Subtle decorative blobs ──────────────────────────────── */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.blob-1 {
+  width: 400px;
+  height: 400px;
+  background: #c7d2fe;
+  top: -120px;
+  left: -120px;
+}
+
+.blob-2 {
+  width: 350px;
+  height: 350px;
+  background: #fbcfe8;
+  bottom: -100px;
+  right: -100px;
+}
+
+/* ── Gradient button ──────────────────────────────────────── */
+.btn-gradient {
+  background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-gradient:hover::before {
+  opacity: 1;
+}
+
+.btn-gradient:disabled {
+  background: linear-gradient(135deg, #99f6e4 0%, #a5f3fc 100%);
+  cursor: not-allowed;
+}
+
+.btn-gradient:disabled::before {
+  display: none;
+}
+
+.btn-gradient span {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Input focus glow ─────────────────────────────────────── */
+.input-glow {
+  transition: all 0.3s ease;
+}
+
+.input-glow:focus {
+  border-color: #2dd4bf;
+  box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.12), 0 0 20px rgba(45, 212, 191, 0.06);
+}
+
+/* ── Fade-in animation ────────────────────────────────────── */
+.fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Shimmer loading ──────────────────────────────────────── */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  animation: shimmer-slide 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ── Success / Error message boxes ────────────────────────── */
+.msg-success {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #6ee7b7;
+  color: #065f46;
+}
+
+.msg-error {
+  background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+/* ── Hide number input spinners ───────────────────────────── */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ── Floating bounce for Messenger button ─────────────────── */
+.float-bounce {
+  animation: float-bounce 3s ease-in-out infinite;
+}
+
+@keyframes float-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
