@@ -4,22 +4,19 @@ const GOOGLE_SCRIPT_URL = process.env.GOOGLE_SCRIPT_URL;
 
 type SaveScorePayload = {
     fullName: string;
-    hocBaM1: number;
-    hocBaM2: number;
-    hocBaM3: number;
-    examType: "HSA" | "VSAT";
-    examScore: number;
-    bonusPoints: number;
-    priorityPoints: number;
+    sourceMethod: string;
+    sourceScore: number;
+    normalizedScore: number;
+    comboType: string;
+    resultPTXT4: string;
+    resultPTXT2_1: string;
+    resultPTXT2_2: string;
+    resultPTXT2_3: string;
+    resultPTXT3: string;
     hasIntlCert: boolean;
     surveyOption?: string;
-    finalScore: number;
     facebookLink?: string;
 };
-
-function isValidExamType(value: unknown): value is SaveScorePayload["examType"] {
-    return value === "HSA" || value === "VSAT";
-}
 
 function isFiniteNumber(value: unknown): value is number {
     return typeof value === "number" && Number.isFinite(value);
@@ -48,36 +45,23 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (!isFiniteNumber(body.hocBaM1) || !isFiniteNumber(body.hocBaM2) || !isFiniteNumber(body.hocBaM3)) {
+        if (typeof body.sourceMethod !== "string" || !body.sourceMethod) {
             return NextResponse.json(
-                { status: "error", message: "Điểm học bạ không hợp lệ." },
+                { status: "error", message: "Phương thức gốc không hợp lệ." },
                 { status: 400 }
             );
         }
 
-        if (!isValidExamType(body.examType)) {
+        if (!isFiniteNumber(body.sourceScore)) {
             return NextResponse.json(
-                {
-                    status: "error",
-                    message: "Loại kỳ thi không hợp lệ.",
-                },
+                { status: "error", message: "Điểm trúng tuyển không hợp lệ." },
                 { status: 400 }
             );
         }
 
-        if (!isFiniteNumber(body.examScore)) {
+        if (!isFiniteNumber(body.normalizedScore)) {
             return NextResponse.json(
-                {
-                    status: "error",
-                    message: "Điểm ĐGNL không hợp lệ.",
-                },
-                { status: 400 }
-            );
-        }
-
-        if (!isFiniteNumber(body.bonusPoints) || !isFiniteNumber(body.priorityPoints)) {
-            return NextResponse.json(
-                { status: "error", message: "Điểm cộng hoặc ưu tiên không hợp lệ." },
+                { status: "error", message: "Điểm chuẩn hóa không hợp lệ." },
                 { status: 400 }
             );
         }
@@ -89,28 +73,19 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (!isFiniteNumber(body.finalScore)) {
-            return NextResponse.json(
-                {
-                    status: "error",
-                    message: "Điểm xét tuyển không hợp lệ.",
-                },
-                { status: 400 }
-            );
-        }
-
         const payload = {
             fullName,
-            hocBaM1: body.hocBaM1,
-            hocBaM2: body.hocBaM2,
-            hocBaM3: body.hocBaM3,
-            examType: body.examType,
-            examScore: body.examScore,
-            bonusPoints: body.bonusPoints,
-            priorityPoints: body.priorityPoints,
+            sourceMethod: body.sourceMethod,
+            sourceScore: body.sourceScore,
+            normalizedScore: body.normalizedScore,
+            comboType: typeof body.comboType === "string" ? body.comboType : "N/A",
+            resultPTXT4: typeof body.resultPTXT4 === "string" ? body.resultPTXT4 : "—",
+            resultPTXT2_1: typeof body.resultPTXT2_1 === "string" ? body.resultPTXT2_1 : "—",
+            resultPTXT2_2: typeof body.resultPTXT2_2 === "string" ? body.resultPTXT2_2 : "—",
+            resultPTXT2_3: typeof body.resultPTXT2_3 === "string" ? body.resultPTXT2_3 : "—",
+            resultPTXT3: typeof body.resultPTXT3 === "string" ? body.resultPTXT3 : "—",
             hasIntlCert: body.hasIntlCert ? "Có" : "Không",
             surveyOption: body.surveyOption?.trim() || "",
-            finalScore: body.finalScore,
             facebookLink: body.facebookLink?.trim() || "",
             createdAt: new Date().toISOString(),
         };
@@ -149,10 +124,16 @@ export async function POST(request: NextRequest) {
         if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
             const message = `🚨 <b>CÓ LEAD MỚI CẦN TƯ VẤN GẤP!</b>\n\n` +
                             `👤 Học sinh: <b>${payload.fullName}</b>\n` +
-                            `🎯 Điểm quy đổi: <b>${payload.finalScore}/30</b>\n` +
+                            `📋 PT gốc: <b>${payload.sourceMethod}</b> | Điểm: <b>${payload.sourceScore}</b>` +
+                            `${payload.comboType !== "N/A" ? ` (${payload.comboType} → D01: ${payload.normalizedScore})` : ""}\n` +
+                            `🔄 <b>Quy đổi:</b>\n` +
+                            `   PTXT 4: ${payload.resultPTXT4} | PTXT 2.1: ${payload.resultPTXT2_1}\n` +
+                            `   PTXT 2.2: ${payload.resultPTXT2_2} | PTXT 2.3: ${payload.resultPTXT2_3}\n` +
+                            `   PTXT 3: ${payload.resultPTXT3}\n` +
                             `📝 Khảo sát: <i>${payload.surveyOption || 'Không có'}</i>\n` +
-                            `🔗 Link Facebook: ${payload.facebookLink || 'Không có'}`;
-            
+                            `🎓 CCQT: ${payload.hasIntlCert}\n` +
+                            `🔗 Facebook: ${payload.facebookLink || 'Không có'}`;
+
             // Không cần await để tránh làm chậm thời gian phản hồi cho học sinh
             fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                 method: 'POST',

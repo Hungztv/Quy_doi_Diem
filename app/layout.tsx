@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tính Điểm Quy Đổi Tuyển Sinh Đại Học | Thang 30",
+  title: "Quy Đổi Điểm Trúng Tuyển — Học viện Ngân hàng 2026 | TB 3508/HVNH",
   description:
-    "Công cụ quy đổi điểm thi HSA (ĐHQG Hà Nội) và V-SAT sang thang điểm 30 dành cho tuyển sinh đại học. Nhanh chóng, chính xác, miễn phí.",
+    "Công cụ nội suy điểm tương đương giữa 5 phương thức xét tuyển (PTXT 4, 2.1, 2.2, 2.3, 3) theo Thông báo 3508/TB-HVNH — Học viện Ngân hàng năm 2026. Nhanh chóng, chính xác, miễn phí.",
 };
 
 export default function RootLayout({

@@ -24,10 +24,22 @@ body {
   position: relative;
 }
 
+/* Subtle dot grid overlay */
+.bg-clean::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
 /* ── Card ─────────────────────────────────────────────────── */
 .card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(229, 231, 235, 0.6);
 }
 
 /* ── Subtle decorative blobs ──────────────────────────────── */
@@ -35,25 +47,55 @@ body {
   position: absolute;
   border-radius: 50%;
   filter: blur(100px);
-  opacity: 0.3;
+  opacity: 0.35;
   pointer-events: none;
+  z-index: 0;
 }
 
 .blob-1 {
-  width: 400px;
-  height: 400px;
-  background: #c7d2fe;
-  top: -120px;
-  left: -120px;
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
+  top: -160px;
+  left: -160px;
+  animation: blob-drift 12s ease-in-out infinite alternate;
 }
 
 .blob-2 {
-  width: 350px;
-  height: 350px;
-  background: #fbcfe8;
-  bottom: -100px;
-  right: -100px;
+  width: 450px;
+  height: 450px;
+  background: linear-gradient(135deg, #fbcfe8, #f9a8d4);
+  bottom: -140px;
+  right: -140px;
+  animation: blob-drift 14s ease-in-out infinite alternate-reverse;
 }
+
+/* ── Extra decorative blobs ───────────────────────────────── */
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, #99f6e4, #5eead4);
+  top: 40%;
+  right: -80px;
+  animation: blob-drift 16s ease-in-out infinite alternate;
+}
+
+.blob-4 {
+  width: 250px;
+  height: 250px;
+  background: linear-gradient(135deg, #fde68a, #fbbf24);
+  bottom: 20%;
+  left: -60px;
+  animation: blob-drift 10s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes blob-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.05); }
+  100% { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+/* ── Floating decorative shapes removed for cleaner UI ── */
 
 /* ── Gradient button ──────────────────────────────────────── */
 .btn-gradient {
@@ -173,3 +215,34 @@ input[type="number"] {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
+
+/* ── Custom select styling ───────────────────────────── */
+select.input-glow {
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+select.input-glow:focus {
+  border-color: #2dd4bf;
+  box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.12), 0 0 20px rgba(45, 212, 191, 0.06);
+}
+
+/* ── Custom scrollbar for quantile table ─────────────── */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
