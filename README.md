@@ -42,18 +42,29 @@ Dự án công cụ web giúp các sĩ tử tính điểm xét tuyển đại h�
 
 Dự án này sử dụng Google Apps Script để bắt request và ghi vào Sheet. 
 1. Mở file Google Sheets, chọn **Extensions > Apps Script**.
-2. Dán đoạn mã sau:
+4. Dán đoạn mã sau (đã cập nhật cho bản dùng số điện thoại):
    ```javascript
    function doPost(e) {
      try {
        var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
        var data = JSON.parse(e.postData.contents);
-       var timestamp = new Date();
+       var timestamp = new Date(data.createdAt || new Date());
        
        var rowData = [
-         timestamp, data.fullName || "", data.hocBaM1 || 0, data.hocBaM2 || 0, data.hocBaM3 || 0, 
-         data.examType || "", data.examScore || 0, data.bonusPoints || 0, data.priorityPoints || 0, 
-         data.finalScore || 0, data.facebookLink || ""
+         timestamp, 
+         data.fullName || "", 
+         data.phoneNumber || "",
+         data.sourceMethod || "",
+         data.sourceScore || 0,
+         data.comboType || "",
+         data.normalizedScore || 0,
+         data.resultPTXT4 || "",
+         data.resultPTXT2_1 || "",
+         data.resultPTXT2_2 || "",
+         data.resultPTXT2_3 || "",
+         data.resultPTXT3 || "",
+         data.surveyOption || "",
+         data.hasIntlCert || ""
        ];
        
        sheet.appendRow(rowData);
