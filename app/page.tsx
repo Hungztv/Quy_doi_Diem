@@ -76,67 +76,67 @@ const QUANTILE_TABLE: {
   quantile: number;
   ranges: Record<MethodKey, [number, number] | null>;
 }[] = [
-  {
-    quantile: 1,
-    ranges: {
-      PTXT4: [29, 30],
-      PTXT2_1: null,
-      PTXT2_2: null,
-      PTXT2_3: null,
-      PTXT3: null,
+    {
+      quantile: 1,
+      ranges: {
+        PTXT4: [29, 30],
+        PTXT2_1: null,
+        PTXT2_2: null,
+        PTXT2_3: null,
+        PTXT3: null,
+      },
     },
-  },
-  {
-    quantile: 2,
-    ranges: {
-      PTXT4: [28, 29],
-      PTXT2_1: [29, 30],
-      PTXT2_2: [29, 30],
-      PTXT2_3: [29, 30],
-      PTXT3: null,
+    {
+      quantile: 2,
+      ranges: {
+        PTXT4: [28, 29],
+        PTXT2_1: [29, 30],
+        PTXT2_2: [29, 30],
+        PTXT2_3: [29, 30],
+        PTXT3: null,
+      },
     },
-  },
-  {
-    quantile: 3,
-    ranges: {
-      PTXT4: [26, 28],
-      PTXT2_1: [28, 29],
-      PTXT2_2: [28, 29],
-      PTXT2_3: [28, 29],
-      PTXT3: [29, 30],
+    {
+      quantile: 3,
+      ranges: {
+        PTXT4: [26, 28],
+        PTXT2_1: [28, 29],
+        PTXT2_2: [28, 29],
+        PTXT2_3: [28, 29],
+        PTXT3: [29, 30],
+      },
     },
-  },
-  {
-    quantile: 4,
-    ranges: {
-      PTXT4: [24, 26],
-      PTXT2_1: [26, 28],
-      PTXT2_2: [26, 28],
-      PTXT2_3: [26, 28],
-      PTXT3: [27, 29],
+    {
+      quantile: 4,
+      ranges: {
+        PTXT4: [24, 26],
+        PTXT2_1: [26, 28],
+        PTXT2_2: [26, 28],
+        PTXT2_3: [26, 28],
+        PTXT3: [27, 29],
+      },
     },
-  },
-  {
-    quantile: 5,
-    ranges: {
-      PTXT4: [21.5, 24],
-      PTXT2_1: [24, 26],
-      PTXT2_2: [24, 26],
-      PTXT2_3: [24, 26],
-      PTXT3: [24, 27],
+    {
+      quantile: 5,
+      ranges: {
+        PTXT4: [21.5, 24],
+        PTXT2_1: [24, 26],
+        PTXT2_2: [24, 26],
+        PTXT2_3: [24, 26],
+        PTXT3: [24, 27],
+      },
     },
-  },
-  {
-    quantile: 6,
-    ranges: {
-      PTXT4: [19, 21.5],
-      PTXT2_1: [21, 24],
-      PTXT2_2: [21, 24],
-      PTXT2_3: [21, 24],
-      PTXT3: [21, 24],
+    {
+      quantile: 6,
+      ranges: {
+        PTXT4: [19, 21.5],
+        PTXT2_1: [21, 24],
+        PTXT2_2: [21, 24],
+        PTXT2_3: [21, 24],
+        PTXT3: [21, 24],
+      },
     },
-  },
-];
+  ];
 
 /**
  * Mức chênh lệch tổ hợp so với D01 (chỉ áp dụng PTXT 4).
@@ -258,50 +258,6 @@ function interpolateToAll(
   );
 }
 
-function normalizeFacebookLink(value: string) {
-  const trimmedValue = value.trim();
-
-  if (!trimmedValue) {
-    return { value: "", error: "" };
-  }
-
-  const normalizedValue = /^https?:\/\//i.test(trimmedValue)
-    ? trimmedValue
-    : `https://${trimmedValue}`;
-
-  try {
-    const url = new URL(normalizedValue);
-
-    if (url.protocol !== "http:" && url.protocol !== "https:") {
-      return {
-        value: "",
-        error: "Link Facebook phải bắt đầu bằng http hoặc https.",
-      };
-    }
-
-    const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
-
-    const isFacebookDomain =
-      hostname === "facebook.com" ||
-      hostname.endsWith(".facebook.com") ||
-      hostname === "fb.com" ||
-      hostname.endsWith(".fb.com");
-
-    if (!isFacebookDomain) {
-      return {
-        value: "",
-        error: "Vui lòng nhập đúng link Facebook cá nhân.",
-      };
-    }
-
-    return { value: normalizedValue, error: "" };
-  } catch {
-    return {
-      value: "",
-      error: "Link Facebook không hợp lệ.",
-    };
-  }
-}
 
 /* ═══════════════════════════ Component ═══════════════════════ */
 
@@ -312,8 +268,9 @@ export default function HomePage() {
   const [sourceScore, setSourceScore] = useState("");
   const [comboType, setComboType] = useState<ComboKey>("D01");
   const [fullName, setFullName] = useState("");
-  const [facebookLink, setFacebookLink] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [hasIntlCert, setHasIntlCert] = useState(false);
+  const [adminCode, setAdminCode] = useState("");
 
   /* ── Result state ──────────────────────────────────── */
   const [results, setResults] = useState<ConversionResult[] | null>(null);
@@ -364,12 +321,6 @@ export default function HomePage() {
     setResults(null);
     setMatchedQuantile(null);
 
-    /* Validate name */
-    if (!fullName.trim()) {
-      setMessage({ type: "error", text: "Vui lòng nhập họ tên." });
-      return;
-    }
-
     /* Validate score */
     const trimmedScore = sourceScore.trim();
     if (!trimmedScore || !isNumericInput(trimmedScore)) {
@@ -405,17 +356,38 @@ export default function HomePage() {
       return;
     }
 
-    /* Validate Facebook */
-    if (!facebookLink.trim()) {
+    /* Admin bypass */
+    if (adminCode === "9999") {
+      setNormalizedScore(numScore);
+      const conversionResults = [interpolateScore(numScore, sourceMethod, targetMethod)];
+      const firstSuccess = conversionResults.find(
+        (r): r is SuccessResult => "convertedScore" in r
+      );
+      const qIndex = firstSuccess?.quantileIndex ?? null;
+
+      setResults(conversionResults);
+      setMatchedQuantile(qIndex);
       setMessage({
-        type: "error",
-        text: "Vui lòng nhập Link Facebook (bắt buộc) để chuyên viên hỗ trợ.",
+        type: "success",
+        text: "🎯 Đã quy đổi điểm thành công! (Quyền Admin)",
       });
       return;
     }
-    const fbValidation = normalizeFacebookLink(facebookLink);
-    if (fbValidation.error) {
-      setMessage({ type: "error", text: fbValidation.error });
+
+    /* Validate name */
+    if (!fullName.trim()) {
+      setMessage({ type: "error", text: "Vui lòng nhập họ tên." });
+      return;
+    }
+
+    /* Validate Phone */
+    const phoneRegex = /^[0-9]{10,}$/;
+    const phoneTrimmed = phoneNumber.replace(/\s+/g, '');
+    if (!phoneNumber.trim() || !phoneRegex.test(phoneTrimmed)) {
+      setMessage({
+        type: "error",
+        text: "Vui lòng nhập số điện thoại hợp lệ (ít nhất 10 số).",
+      });
       return;
     }
 
@@ -433,7 +405,6 @@ export default function HomePage() {
     setIsLoading(true);
 
     const numScore = normalizedScore!;
-    const fbValidation = normalizeFacebookLink(facebookLink);
 
     /* Compute results */
     const conversionResults = [interpolateScore(numScore, sourceMethod, targetMethod)];
@@ -474,7 +445,7 @@ export default function HomePage() {
           resultPTXT3: resultMap["PTXT3"] || "—",
           hasIntlCert,
           surveyOption,
-          facebookLink: fbValidation.value,
+          phoneNumber: phoneNumber.trim(),
         }),
       });
 
@@ -692,21 +663,19 @@ export default function HomePage() {
                           return (
                             <tr
                               key={row.quantile}
-                              className={`border-b border-teal-50 transition-all duration-300 ${
-                                isHighlighted
+                              className={`border-b border-teal-50 transition-all duration-300 ${isHighlighted
                                   ? "bg-teal-100/80 ring-2 ring-inset ring-teal-400"
                                   : idx % 2 === 0
                                     ? "bg-white hover:bg-teal-50/40"
                                     : "bg-teal-50/20 hover:bg-teal-50/40"
-                              }`}
+                                }`}
                             >
                               <td className="px-3 py-2.5 text-center">
                                 <span
-                                  className={`inline-flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold ${
-                                    isHighlighted
+                                  className={`inline-flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold ${isHighlighted
                                       ? "bg-teal-600 text-white shadow-sm"
                                       : "bg-gray-100 text-gray-600"
-                                  }`}
+                                    }`}
                                 >
                                   {row.quantile}
                                 </span>
@@ -720,11 +689,10 @@ export default function HomePage() {
                                   >
                                     {range ? (
                                       <span
-                                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                                          isHighlighted
+                                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${isHighlighted
                                             ? "bg-teal-200/60 text-teal-800"
                                             : "bg-gray-100 text-gray-700"
-                                        }`}
+                                          }`}
                                       >
                                         {range[0].toFixed(1)} – {range[1].toFixed(1)}
                                       </span>
@@ -923,28 +891,27 @@ export default function HomePage() {
                     />
                   </div>
 
-                  {/* Facebook link */}
+                  {/* Phone number */}
                   <div>
                     <label
-                      htmlFor="facebookLink"
+                      htmlFor="phoneNumber"
                       className="mb-1.5 block text-xs font-semibold text-gray-700"
                     >
-                      Link Facebook cá nhân{" "}
+                      Số điện thoại{" "}
                       <span className="text-red-500">*</span>
                     </label>
                     <input
-                      id="facebookLink"
-                      type="url"
-                      value={facebookLink}
+                      id="phoneNumber"
+                      type="tel"
+                      value={phoneNumber}
                       onChange={(e) => {
-                        setFacebookLink(e.target.value);
+                        setPhoneNumber(e.target.value);
                         setMessage(null);
                       }}
-                      placeholder="https://facebook.com/ten-cua-ban"
+                      placeholder="0912345678"
                       className="input-glow w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 outline-none placeholder:text-gray-400"
                     />
                     <p className="mt-1.5 text-xs text-gray-400">
-                      Nhập link FB để các anh chị dễ dàng liên hệ hỗ trợ bạn nhé!
                     </p>
                   </div>
 
@@ -960,11 +927,10 @@ export default function HomePage() {
                           setHasIntlCert(true);
                           setMessage(null);
                         }}
-                        className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                          hasIntlCert
+                        className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${hasIntlCert
                             ? "bg-white text-teal-700 shadow-sm ring-1 ring-gray-200"
                             : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                        }`}
+                          }`}
                       >
                         Có
                       </button>
@@ -974,11 +940,10 @@ export default function HomePage() {
                           setHasIntlCert(false);
                           setMessage(null);
                         }}
-                        className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                          !hasIntlCert
+                        className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${!hasIntlCert
                             ? "bg-white text-teal-700 shadow-sm ring-1 ring-gray-200"
                             : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                        }`}
+                          }`}
                       >
                         Không
                       </button>
@@ -991,9 +956,8 @@ export default function HomePage() {
               <button
                 type="submit"
                 disabled={isLoading || cooldown > 0}
-                className={`btn-gradient w-full cursor-pointer disabled:cursor-not-allowed rounded-xl px-5 py-3.5 font-semibold text-white shadow-lg shadow-teal-200 transition-transform active:scale-95 ${
-                  isLoading || cooldown > 0 ? "opacity-50" : ""
-                } ${isLoading ? "shimmer" : ""}`}
+                className={`btn-gradient w-full cursor-pointer disabled:cursor-not-allowed rounded-xl px-5 py-3.5 font-semibold text-white shadow-lg shadow-teal-200 transition-transform active:scale-95 ${isLoading || cooldown > 0 ? "opacity-50" : ""
+                  } ${isLoading ? "shimmer" : ""}`}
               >
                 <span>
                   {isLoading
@@ -1178,9 +1142,8 @@ export default function HomePage() {
               <div
                 role="status"
                 aria-live="polite"
-                className={`fade-in-up mt-6 rounded-2xl border px-4 py-4 text-sm font-medium ${
-                  message.type === "success" ? "msg-success" : "msg-error"
-                }`}
+                className={`fade-in-up mt-6 rounded-2xl border px-4 py-4 text-sm font-medium ${message.type === "success" ? "msg-success" : "msg-error"
+                  }`}
               >
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 flex-shrink-0">
@@ -1262,6 +1225,18 @@ export default function HomePage() {
         </a>
       </div>
 
+      {/* ── Admin Code Input ────────────────────────── */}
+      <div className="fixed bottom-2 right-2 z-[60] opacity-10 hover:opacity-100 transition-opacity">
+        <input
+          type="password"
+          maxLength={4}
+          value={adminCode}
+          onChange={(e) => setAdminCode(e.target.value)}
+          className="w-16 h-8 text-xs text-center rounded bg-white/50 border border-gray-200 outline-none focus:bg-white"
+          placeholder="Code"
+        />
+      </div>
+
       {/* ── Ad Modal ─────────────────────────────────── */}
       {showAdModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm transition-all duration-300">
@@ -1334,11 +1309,10 @@ export default function HomePage() {
                 ].map((option) => (
                   <label
                     key={option.value}
-                    className={`flex cursor-pointer items-start gap-3 rounded-xl p-3 ring-1 transition-all duration-200 ${
-                      surveyOption === option.value
+                    className={`flex cursor-pointer items-start gap-3 rounded-xl p-3 ring-1 transition-all duration-200 ${surveyOption === option.value
                         ? "bg-teal-50 ring-teal-500"
                         : "bg-white ring-gray-200 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     <div className="flex h-5 items-center">
                       <input
@@ -1369,11 +1343,10 @@ export default function HomePage() {
                   type="button"
                   disabled={!surveyOption}
                   onClick={submitWithAd}
-                  className={`cursor-pointer disabled:cursor-not-allowed rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all ${
-                    surveyOption
+                  className={`cursor-pointer disabled:cursor-not-allowed rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all ${surveyOption
                       ? "bg-gradient-to-r from-teal-500 to-cyan-600 hover:shadow-teal-300/50"
                       : "bg-gray-300"
-                  }`}
+                    }`}
                 >
                   Xác nhận &amp; Xem điểm
                 </button>

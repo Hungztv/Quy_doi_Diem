@@ -15,7 +15,7 @@ type SaveScorePayload = {
     resultPTXT3: string;
     hasIntlCert: boolean;
     surveyOption?: string;
-    facebookLink?: string;
+    phoneNumber?: string;
 };
 
 function isFiniteNumber(value: unknown): value is number {
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
             resultPTXT3: typeof body.resultPTXT3 === "string" ? body.resultPTXT3 : "—",
             hasIntlCert: body.hasIntlCert ? "Có" : "Không",
             surveyOption: body.surveyOption?.trim() || "",
-            facebookLink: body.facebookLink?.trim() || "",
+            phoneNumber: body.phoneNumber?.trim() || "",
             createdAt: new Date().toISOString(),
         };
 
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
                             `   PTXT 3: ${payload.resultPTXT3}\n` +
                             `📝 Khảo sát: <i>${payload.surveyOption || 'Không có'}</i>\n` +
                             `🎓 CCQT: ${payload.hasIntlCert}\n` +
-                            `🔗 Facebook: ${payload.facebookLink || 'Không có'}`;
+                            `📞 Số điện thoại: ${payload.phoneNumber || 'Không có'}`;
 
             // Không cần await để tránh làm chậm thời gian phản hồi cho học sinh
             fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
